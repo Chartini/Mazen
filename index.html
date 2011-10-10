@@ -1,1 +1,81 @@
-Test
+<html>
+<head>
+	<title>Mazen - Maze Builder</title>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.3/jquery.min.js"></script>
+	<script src="maze.js"></script>
+	<script src="canvasrenderer.js"></script>
+	
+	
+	
+<script type="text/javascript">
+$(function () {
+	var maze = null, renderer = null;
+
+	function fitToRange(val, min, max) {
+	    if (val < min) { return min; }
+	    if (val > max) { return max; }
+	    return val;
+	}
+	
+	function hideSolution() {
+		maze.solve(renderer, false);
+		$("#solve-button").unbind("click").click(showSolution).text("Show Solution");
+	}
+
+	function showSolution() {
+		maze.solve(renderer, true);
+		$("#solve-button").unbind("click").click(hideSolution).text("Hide Solution");
+	}
+
+	$("#generate-button").click(function () {
+	    var wb = $("#width-box"),
+		    hb = $("#height-box"),
+		    zb = $("#zoom-box"),
+		    w = fitToRange(parseInt(wb.val(), 10), 5, 100),
+		    h = fitToRange(parseInt(hb.val(), 10), 5, 100),
+		    zoom = fitToRange(parseInt(zb.val(), 10), 4, 20),
+			cnv = $("#cnv");
+		wb.val(w);
+	    hb.val(h);
+		zb.val(zoom);
+		zoom += 2; //adjust for walls
+		cnv.attr("width", (2 + w) * (zoom));
+	    cnv.attr("height", (2 + h) * (zoom));
+	    maze = new Maze(w, h);
+		renderer = new CanvasRenderer(zoom, cnv[0].getContext("2d"));
+	    maze.build(renderer);
+	    $("#solve-button").removeAttr("disabled").unbind("click").click(showSolution).text("Show Solution");
+	});
+
+	$("#solve-button").attr("disabled", "disabled");
+	$("#solve-button").click(showSolution);
+
+});
+</script>
+</head>
+<body>
+<h1>Mazen - Maze Builder</h1>
+<table>
+	<tr>
+		<td>Units Wide:</td>
+		<td><input type="number" id="width-box" value="30" min="5" max="100" /></td>
+	</tr>
+	<tr>
+		<td>Units High:</td>
+		<td><input type="number" id="height-box" value="20" min="5" max="100" /></td>
+	</tr>
+	<tr>
+		<td>Zoom:</td>
+		<td><input type="number" id="zoom-box" value="8" min="4" max="20" /></td>
+	</tr>
+	<tr>
+		<td><button id="generate-button">Generate Maze</button></td>
+		<td><button id="solve-button">Show Solution</button></td>
+	</tr>
+</table>
+
+<canvas id="cnv"></canvas>
+
+
+</body>
+</html>
